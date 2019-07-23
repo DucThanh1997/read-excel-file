@@ -32,4 +32,4 @@ class Excel(Resource):
             db.commit()
         except:
             return "Lỗi không xác định", 500
-        return "Cập nhật thành công"
+        return "Cập nhật thành công", 200
