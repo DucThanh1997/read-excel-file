@@ -1,7 +1,8 @@
 from flask_restful import Resource
-from flask import request
+from flask import request, jsonify
 import xlrd
 import pymysql
+import json
 pymysql.install_as_MySQLdb()
 
 
@@ -24,12 +25,17 @@ class Excel(Resource):
                            'danh_muc_tai_san VARCHAR(500),'
                            ' thoi_gian_su_dung  VARCHAR(30) ,'
                            ' ti_le_hao_mon VARCHAR(30))');
-            for r in range(1, worksheet.nrows):
+            list_data = []
+            for r in range(2, worksheet.nrows):
                 cursor.execute('insert into asset (stt, danh_muc_tai_san, thoi_gian_su_dung, ti_le_hao_mon) values '
                                '("{0}", "{1}", "{2}", "{3}");'
                                .format(worksheet.cell(r, 0).value, worksheet.cell(r, 1).value,
                                        worksheet.cell(r, 2).value, worksheet.cell(r, 3).value))
+                list_data.append({"stt": worksheet.cell(r, 0).value, "danh_muc_tai_san": worksheet.cell(r, 1).value,
+                                  "thoi_gian_su_dung": worksheet.cell(r, 2).value,
+                                  "ti_le_hao_mon": worksheet.cell(r, 3).value})
             db.commit()
         except:
             return "Lỗi không xác định", 500
-        return "Cập nhật thành công", 200
+        print(type(list_data))
+        return {"list data": list_data}, 200
