@@ -31,13 +31,52 @@ class Excel(Resource):
                                '("{0}", "{1}", "{2}", "{3}");'
                                .format(worksheet.cell(r, 0).value, worksheet.cell(r, 1).value,
                                        worksheet.cell(r, 2).value, worksheet.cell(r, 3).value))
-                if worksheet.cell(r, 2).value == "" and worksheet.cell(r, 3).value == "":
+                # lấy các giá trị danh mục lớn kiểm tra xem nó có chữ loại ở đầu không và 2 cell sau có trống không
+                if str(worksheet.cell(r, 0).value).find("Loại") != -1 and worksheet.cell(r, 2).value == "" \
+                        and worksheet.cell(r, 3).value == "":
+                    danh_muc_tai_san_lon = worksheet.cell(r, 1).value
+                    i = 1
+                    continue
+                # lấy giá trị danh mục con, nó ko có chữ loại ở đầu và nó cũng ko trống và 2 cell sau của nó có trống
+                # không?
+                if str(worksheet.cell(r, 0).value).find("Loại") == -1 and worksheet.cell(r, 2).value == "" \
+                        and worksheet.cell(r, 3).value == "" and worksheet.cell(r, 0).value != "":
+                    i = 0
                     danh_muc_tai_san = worksheet.cell(r, 1).value
                     continue
-                list_data.append({"danh_muc_tai_san": danh_muc_tai_san,
-                                  "thoi_gian_su_dung": worksheet.cell(r, 2).value,
-                                  "ti_le_hao_mon": worksheet.cell(r, 3).value,
-                                  "loai_tai_san": worksheet.cell(r, 1).value[2:]})
+
+                # TH1 loại không có các loại nhỏ bên trong và có luôn số liệu hao mòn và số lượng
+                if str(worksheet.cell(r, 0).value).find("Loại") != -1 and worksheet.cell(r, 1).value != "" \
+                        and worksheet.cell(r, 2).value != "" and worksheet.cell(r, 3).value != "":
+                    list_data.append({"danh_muc_tai_san": worksheet.cell(r, 1).value,
+                                      "thoi_gian_su_dung": worksheet.cell(r, 2).value,
+                                      "ti_le_hao_mon": worksheet.cell(r, 3).value,
+                                      "loai_tai_san": worksheet.cell(r, 1).value})
+                    continue
+
+                # TH2 danh mục con có luôn số liệu:
+                if str(worksheet.cell(r, 0).value).find("Loại") == -1 and worksheet.cell(r, 2).value != "" \
+                        and worksheet.cell(r, 3).value != "" and worksheet.cell(r, 0).value != "":
+                    list_data.append({"danh_muc_tai_san": danh_muc_tai_san_lon,
+                                      "thoi_gian_su_dung": worksheet.cell(r, 2).value,
+                                      "ti_le_hao_mon": worksheet.cell(r, 3).value,
+                                      "loai_tai_san": worksheet.cell(r, 1).value})
+                    continue
+
+                # TH3 danh mục lớn chưa có thêm đứa con nào
+                if i == 1:
+                    list_data.append({"danh_muc_tai_san": danh_muc_tai_san_lon,
+                                      "thoi_gian_su_dung": worksheet.cell(r, 2).value,
+                                      "ti_le_hao_mon": worksheet.cell(r, 3).value,
+                                      "loai_tai_san": worksheet.cell(r, 1).value})
+                    continue
+
+                # TH4 danh mục con có thêm vài thằng con nữa
+                if i == 0:
+                    list_data.append({"danh_muc_tai_san": danh_muc_tai_san,
+                                      "thoi_gian_su_dung": worksheet.cell(r, 2).value,
+                                      "ti_le_hao_mon": worksheet.cell(r, 3).value,
+                                      "loai_tai_san": worksheet.cell(r, 1).value})
             db.commit()
         except:
             return "Lỗi không xác định", 500
