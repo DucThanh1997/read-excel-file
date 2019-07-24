@@ -31,11 +31,14 @@ class Excel(Resource):
                                '("{0}", "{1}", "{2}", "{3}");'
                                .format(worksheet.cell(r, 0).value, worksheet.cell(r, 1).value,
                                        worksheet.cell(r, 2).value, worksheet.cell(r, 3).value))
-                list_data.append({"stt": worksheet.cell(r, 0).value, "danh_muc_tai_san": worksheet.cell(r, 1).value,
+                if worksheet.cell(r, 2).value == "" and worksheet.cell(r, 3).value == "":
+                    danh_muc_tai_san = worksheet.cell(r, 1).value
+                    continue
+                list_data.append({"danh_muc_tai_san": danh_muc_tai_san,
                                   "thoi_gian_su_dung": worksheet.cell(r, 2).value,
-                                  "ti_le_hao_mon": worksheet.cell(r, 3).value})
+                                  "ti_le_hao_mon": worksheet.cell(r, 3).value,
+                                  "loai_tai_san": worksheet.cell(r, 1).value})
             db.commit()
         except:
             return "Lỗi không xác định", 500
-        print(type(list_data))
         return {"list data": list_data}, 200
