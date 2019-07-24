@@ -37,7 +37,7 @@ class Excel(Resource):
                 list_data.append({"danh_muc_tai_san": danh_muc_tai_san,
                                   "thoi_gian_su_dung": worksheet.cell(r, 2).value,
                                   "ti_le_hao_mon": worksheet.cell(r, 3).value,
-                                  "loai_tai_san": worksheet.cell(r, 1).value})
+                                  "loai_tai_san": worksheet.cell(r, 1).value[2:]})
             db.commit()
         except:
             return "Lỗi không xác định", 500
